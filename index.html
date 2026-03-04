@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Speed Math Game</title>
+
+<style>
+body { font-family: Arial; text-align: center; margin-top: 40px; }
+.hidden { display: none; }
+button { padding: 6px 10px; margin: 4px; font-size: 16px; cursor: pointer; }
+input { padding: 8px; width: 320px; font-size: 16px; }
+.numbers { font-size: 24px; margin: 20px; }
+.symbols { margin-top: 10px; }
+</style>
+</head>
+<body>
+
+<h1>⚡ Speed Math Game</h1>
+
+<div id="menu">
+  <h2>Select Mode</h2>
+  <button onclick="startNormal()">Normal Mode</button>
+  <button onclick="startAdvanced()">Advanced Mode</button>
+</div>
+
+<div id="game" class="hidden">
+
+  <div class="numbers">
+    Numbers: <span id="nums"></span>
+  </div>
+
+  <div class="numbers">
+    Target: <span id="target"></span>
+  </div>
+
+  <p>Time left: <span id="time">60</span>s</p>
+
+  <input id="answer">
+  <br>
+
+  <div class="symbols" id="symbols"></div>
+
+  <br>
+  <button onclick="submitAnswer()">Submit</button>
+
+  <p id="result"></p>
+
+</div>
+
+<script>
+
+let numbers = [];
+let target = 0;
+let timeLeft = 60;
+let timer;
+let finalDiff = null;
+let answered = false;
+let mode = "normal";
+
+function startNormal() {
+  mode = "normal";
+  startGame(4, 10, 99);
+}
+
+function startAdvanced() {
+  mode = "advanced";
+  startGame(5, 100, 999);
+}
+
+function startGame(count, minTarget, maxTarget) {
+
+  document.getElementById("menu").classList.add("hidden");
+  document.getElementById("game").classList.remove("hidden");
+
+  numbers = [];
+  for (let i = 0; i < count; i++) {
+    numbers.push(Math.floor(Math.random() * 9) + 1);
+  }
+
+  target = Math.floor(Math.random() * (maxTarget - minTarget + 1)) + minTarget;
+
+  document.getElementById("nums").textContent = numbers.join(", ");
+  document.getElementById("target").textContent = target;
+  document.getElementById("answer").value = "";
+  document.getElementById("result").textContent = "";
+  document.getElementById("answer").disabled = false;
+
+  setupSymbols();
+
+  timeLeft = 60;
+  answered = false;
+  finalDiff = null;
+
+  document.getElementById("time").textContent = timeLeft;
+
+  timer = setInterval(() => {
+    timeLeft--;
+    document.getElementById("time").textContent = timeLeft;
+
+    if (timeLeft <= 0) {
+      clearInterval(timer);
+      endGame();
+    }
+  }, 1000);
+}
+
+function setupSymbols() {
+  let symbolsDiv = document.getElementById("symbols");
+  symbolsDiv.innerHTML = "";
+
+  let baseSymbols = ["+","-","*","/","^","(",")"];
+
+  baseSymbols.forEach(sym => {
+  symbolsDiv.innerHTML += `<button onclick="addSymbol('${sym}')">${sym}</button>`;
+});
+
+if (mode === "advanced") {
+  symbolsDiv.innerHTML += `<button onclick="addSymbol('!')">!</button>`;
+  symbolsDiv.innerHTML += `<button onclick="addSymbol('√')">√</button>`;
+}
+}
+
+function addSymbol(symbol) {
+  document.getElementById("answer").value += symbol;
+}
+
+function factorial(n) {
+  if (n < 0 || n > 6) throw "Invalid factorial";
+  let result = 1;
+  for (let i = 2; i <= n; i++) result *= i;
+  return result;
+}
+
+function validateNumbers(input) {
+  let usedNumbers = input.match(/\d+/g);
+  if (!usedNumbers) return false;
+
+  let temp = [...numbers];
+
+  for (let num of usedNumbers) {
+    let index = temp.indexOf(parseInt(num));
+    if (index === -1) return false;
+    temp.splice(index, 1);
+  }
+
+  return temp.length === 0;
+}
+
+function submitAnswer() {
+
+  if (answered) return;
+
+  let input = document.getElementById("answer").value;
+
+  if (!validateNumbers(input)) {
+    document.getElementById("result").textContent =
+      "❌ Use each number exactly once!";
+    return;
+  }
+
+  if (mode === "advanced") {
+    if ((input.match(/!/g) || []).length > 1 ||
+        (input.match(/√/g) || []).length > 1) {
+      document.getElementById("result").textContent =
+        "❌ Only one ! and one √ allowed!";
+      return;
+    }
+
+    input = input.replace(/√(\d+)/g, "Math.sqrt($1)");
+    input = input.replace(/(\d+)!/g, "factorial($1)");
+  }
+
+  try {
+    input = input.replace(/\^/g, "**");
+    let value = eval(input);
+    finalDiff = Math.abs(target - value);
+    answered = true;
+
+    document.getElementById("answer").disabled = true;
+    document.getElementById("result").textContent =
+      "Answer submitted! Waiting...";
+  } catch {
+    document.getElementById("result").textContent =
+      "Invalid expression!";
+  }
+}
+
+function endGame() {
+
+  if (finalDiff === null) {
+    document.getElementById("result").textContent =
+      "⏰ Time's up! No answer.";
+  } else {
+    document.getElementById("result").textContent =
+      "⏰ Time's up! Difference: " + finalDiff;
+  }
+
+  setTimeout(() => {
+    document.getElementById("game").classList.add("hidden");
+    document.getElementById("menu").classList.remove("hidden");
+  }, 4000);
+}
+
+</script>
+
+</body>
+</html>
