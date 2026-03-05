@@ -5,12 +5,35 @@
 <title>Speed Math Game</title>
 
 <style>
-body { font-family: Arial; text-align: center; margin-top: 40px; }
+body { font-family: Arial; text-align: center; margin-top: 40px; font-size: 26px; }
+
 .hidden { display: none; }
-button { padding: 6px 10px; margin: 4px; font-size: 16px; cursor: pointer; }
-input { padding: 8px; width: 320px; font-size: 16px; }
-.numbers { font-size: 24px; margin: 20px; }
-.symbols { margin-top: 10px; }
+
+button {
+  padding: 14px 20px;
+  margin: 6px;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+input {
+  padding: 14px;
+  width: 420px;
+  font-size: 26px;
+  text-align: center;
+}
+
+.numbers { font-size: 34px; margin: 25px; }
+
+.symbols { margin-top: 15px; }
+
+.numberPad { margin-top: 20px; }
+
+#backBtn{
+position:absolute;
+top:20px;
+right:20px;
+}
 </style>
 </head>
 <body>
@@ -25,180 +48,299 @@ input { padding: 8px; width: 320px; font-size: 16px; }
 
 <div id="game" class="hidden">
 
-  <div class="numbers">
-    Numbers: <span id="nums"></span>
-  </div>
+<button id="backBtn" onclick="goBack()">⬅ Back</button>
 
-  <div class="numbers">
-    Target: <span id="target"></span>
-  </div>
+<div class="numbers">
+Numbers: <span id="nums"></span>
+</div>
 
-  <p>Time left: <span id="time">60</span>s</p>
+<div class="numbers">
+Target: <span id="target"></span>
+</div>
 
-  <input id="answer">
-  <br>
+<p>
+Time left: <span id="time">60</span>s
+</p>
 
-  <div class="symbols" id="symbols"></div>
+<p>
+Score: <span id="score">0</span> | Best: <span id="best">0</span>
+</p>
 
-  <br>
-  <button onclick="submitAnswer()">Submit</button>
+<input id="answer" readonly>
 
-  <p id="result"></p>
+<br>
+
+<div class="symbols" id="symbols"></div>
+
+<div class="numberPad" id="numberPad"></div>
+
+<br>
+<button onclick="submitAnswer()">Submit</button>
+
+<p id="result"></p>
 
 </div>
 
 <script>
 
-let numbers = [];
-let target = 0;
-let timeLeft = 60;
-let timer;
-let finalDiff = null;
-let answered = false;
-let mode = "normal";
+let numbers = []
+let target = 0
+let timeLeft = 60
+let timer
 
-function startNormal() {
-  mode = "normal";
-  startGame(4, 10, 99);
+let finalDiff = null
+let answered = false
+let mode = "normal"
+
+let score = 0
+let bestScore = 0
+
+
+function startNormal(){
+mode="normal"
+startGame(4,10,99)
 }
 
-function startAdvanced() {
-  mode = "advanced";
-  startGame(5, 100, 999);
+function startAdvanced(){
+mode="advanced"
+startGame(5,100,999)
 }
 
-function startGame(count, minTarget, maxTarget) {
+function startGame(count,minTarget,maxTarget){
 
-  document.getElementById("menu").classList.add("hidden");
-  document.getElementById("game").classList.remove("hidden");
+document.getElementById("menu").classList.add("hidden")
+document.getElementById("game").classList.remove("hidden")
 
-  numbers = [];
-  for (let i = 0; i < count; i++) {
-    numbers.push(Math.floor(Math.random() * 9) + 1);
-  }
+numbers=[]
 
-  target = Math.floor(Math.random() * (maxTarget - minTarget + 1)) + minTarget;
-
-  document.getElementById("nums").textContent = numbers.join(", ");
-  document.getElementById("target").textContent = target;
-  document.getElementById("answer").value = "";
-  document.getElementById("result").textContent = "";
-  document.getElementById("answer").disabled = false;
-
-  setupSymbols();
-
-  timeLeft = 60;
-  answered = false;
-  finalDiff = null;
-
-  document.getElementById("time").textContent = timeLeft;
-
-  timer = setInterval(() => {
-    timeLeft--;
-    document.getElementById("time").textContent = timeLeft;
-
-    if (timeLeft <= 0) {
-      clearInterval(timer);
-      endGame();
-    }
-  }, 1000);
+for(let i=0;i<count;i++){
+numbers.push(Math.floor(Math.random()*9)+1)
 }
 
-function setupSymbols() {
-  let symbolsDiv = document.getElementById("symbols");
-  symbolsDiv.innerHTML = "";
+target=Math.floor(Math.random()*(maxTarget-minTarget+1))+minTarget
 
-  let baseSymbols = ["+","-","*","/","^","(",")"];
+document.getElementById("nums").textContent=numbers.join(", ")
+document.getElementById("target").textContent=target
 
-  baseSymbols.forEach(sym => {
-  symbolsDiv.innerHTML += `<button onclick="addSymbol('${sym}')">${sym}</button>`;
-});
+document.getElementById("answer").value=""
+document.getElementById("result").textContent=""
 
-if (mode === "advanced") {
-  symbolsDiv.innerHTML += `<button onclick="addSymbol('!')">!</button>`;
-  symbolsDiv.innerHTML += `<button onclick="addSymbol('√')">√</button>`;
-}
-}
+setupSymbols()
+setupNumbers()
 
-function addSymbol(symbol) {
-  document.getElementById("answer").value += symbol;
-}
+timeLeft = (mode==="advanced") ? 90 : 60
 
-function factorial(n) {
-  if (n < 0 || n > 6) throw "Invalid factorial";
-  let result = 1;
-  for (let i = 2; i <= n; i++) result *= i;
-  return result;
-}
+answered=false
+finalDiff=null
 
-function validateNumbers(input) {
-  let usedNumbers = input.match(/\d+/g);
-  if (!usedNumbers) return false;
+document.getElementById("time").textContent=timeLeft
+document.getElementById("score").textContent=score
+document.getElementById("best").textContent=bestScore
 
-  let temp = [...numbers];
+clearInterval(timer)
 
-  for (let num of usedNumbers) {
-    let index = temp.indexOf(parseInt(num));
-    if (index === -1) return false;
-    temp.splice(index, 1);
-  }
+timer=setInterval(()=>{
 
-  return temp.length === 0;
+timeLeft--
+
+document.getElementById("time").textContent=timeLeft
+
+if(timeLeft<=0){
+clearInterval(timer)
+endGame()
 }
 
-function submitAnswer() {
+},1000)
 
-  if (answered) return;
-
-  let input = document.getElementById("answer").value;
-
-  if (!validateNumbers(input)) {
-    document.getElementById("result").textContent =
-      "❌ Use each number exactly once!";
-    return;
-  }
-
-  if (mode === "advanced") {
-    if ((input.match(/!/g) || []).length > 1 ||
-        (input.match(/√/g) || []).length > 1) {
-      document.getElementById("result").textContent =
-        "❌ Only one ! and one √ allowed!";
-      return;
-    }
-
-    input = input.replace(/√(\d+)/g, "Math.sqrt($1)");
-    input = input.replace(/(\d+)!/g, "factorial($1)");
-  }
-
-  try {
-    input = input.replace(/\^/g, "**");
-    let value = eval(input);
-    finalDiff = Math.abs(target - value);
-    answered = true;
-
-    document.getElementById("answer").disabled = true;
-    document.getElementById("result").textContent =
-      "Answer submitted! Waiting...";
-  } catch {
-    document.getElementById("result").textContent =
-      "Invalid expression!";
-  }
 }
 
-function endGame() {
+function setupSymbols(){
 
-  if (finalDiff === null) {
-    document.getElementById("result").textContent =
-      "⏰ Time's up! No answer.";
-  } else {
-    document.getElementById("result").textContent =
-      "⏰ Time's up! Difference: " + finalDiff;
-  }
+let symbolsDiv=document.getElementById("symbols")
+symbolsDiv.innerHTML=""
 
-  setTimeout(() => {
-    document.getElementById("game").classList.add("hidden");
-    document.getElementById("menu").classList.remove("hidden");
-  }, 4000);
+let baseSymbols=["+","-","*","/","^","(",")"]
+
+baseSymbols.forEach(sym=>{
+symbolsDiv.innerHTML+=`<button onclick="addSymbol('${sym}')">${sym}</button>`
+})
+
+if(mode==="advanced"){
+
+symbolsDiv.innerHTML+=`<button onclick="addSymbol('!')">!</button>`
+symbolsDiv.innerHTML+=`<button onclick="addSymbol('√')">√</button>`
+
+}
+
+}
+
+function setupNumbers(){
+
+let pad=document.getElementById("numberPad")
+pad.innerHTML=""
+
+for(let i=1;i<=9;i++){
+pad.innerHTML+=`<button onclick="addSymbol('${i}')">${i}</button>`
+}
+
+pad.innerHTML+=`<button onclick="deleteOne()">⌫</button>`
+
+}
+
+function addSymbol(symbol){
+document.getElementById("answer").value+=symbol
+}
+
+function deleteOne(){
+let box=document.getElementById("answer")
+box.value=box.value.slice(0,-1)
+}
+
+function factorial(n){
+
+if(n<0||n>6) throw "Invalid"
+
+let r=1
+for(let i=2;i<=n;i++) r*=i
+
+return r
+}
+
+function validateNumbers(input){
+
+let used=input.match(/\d+/g)
+
+if(!used) return false
+
+let temp=[...numbers]
+
+for(let num of used){
+
+let index=temp.indexOf(parseInt(num))
+
+if(index===-1) return false
+
+temp.splice(index,1)
+
+}
+
+return temp.length===0
+
+}
+
+function submitAnswer(){
+
+if(answered) return
+
+let input=document.getElementById("answer").value
+
+if(!validateNumbers(input)){
+
+document.getElementById("result").textContent=
+"❌ Use each number exactly once!"
+
+return
+}
+
+if(mode==="advanced"){
+
+if((input.match(/!/g)||[]).length>1 ||
+(input.match(/√/g)||[]).length>1){
+
+document.getElementById("result").textContent=
+"❌ Only one ! and one √ allowed!"
+
+return
+
+}
+
+input=input.replace(/√(\d+)/g,"Math.sqrt($1)")
+input=input.replace(/(\d+)!/g,"factorial($1)")
+
+}
+
+try{
+
+input=input.replace(/\^/g,"**")
+
+let value=eval(input)
+
+finalDiff=Math.abs(target-value)
+
+answered=true
+
+document.getElementById("answer").disabled=true
+
+document.getElementById("result").textContent=
+"Answer submitted!"
+
+}catch{
+
+document.getElementById("result").textContent="Invalid expression!"
+
+}
+
+}
+
+function endGame(){
+
+let text=""
+
+if(finalDiff===null){
+
+text="⏰ Time's up!"
+
+}else{
+
+let roundScore=Math.max(0,100-finalDiff)
+
+if(finalDiff===0){
+roundScore+=50
+text="🎯 PERFECT!"
+}
+
+score=roundScore
+
+if(score>bestScore){
+bestScore=score
+}
+
+document.getElementById("score").textContent=score
+document.getElementById("best").textContent=bestScore
+
+text+=" Score: "+roundScore
+
+}
+
+document.getElementById("result").innerHTML=
+text+
+"<br><br><button onclick='playAgain()'>🔁 Play Again</button>"
+
+}
+
+function playAgain(){
+
+if(mode==="advanced"){
+startAdvanced()
+}else{
+startNormal()
+}
+
+}
+
+function goBack(){
+
+if(confirm("Return to lobby? Your score will reset.")){
+
+clearInterval(timer)
+
+score=0
+
+document.getElementById("game").classList.add("hidden")
+document.getElementById("menu").classList.remove("hidden")
+
+}
+
 }
 
 </script>
