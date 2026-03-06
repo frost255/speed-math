@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta charset="UTF-8">
 <title>Speed Math Game</title>
 
@@ -34,8 +35,38 @@ position:absolute;
 top:20px;
 right:20px;
 }
+@media (max-width:600px){
+
+body{
+font-size:20px;
+margin-top:20px;
+}
+
+button{
+font-size:22px;
+padding:16px 18px;
+}
+
+input{
+width:90%;
+font-size:24px;
+}
+
+.numbers{
+font-size:28px;
+}
+
+.symbols button,
+.numberPad button{
+width:60px;
+height:60px;
+}
+
+}
 </style>
 </head>
+
+
 <body>
 
 <h1>⚡ Speed Math Game</h1>
@@ -63,7 +94,7 @@ Time left: <span id="time">60</span>s
 </p>
 
 <p>
-Score: <span id="score">0</span> | Best: <span id="best">0</span>
+Score: <span id="score">0</span>
 </p>
 
 <input id="answer" readonly>
@@ -83,17 +114,17 @@ Score: <span id="score">0</span> | Best: <span id="best">0</span>
 
 <script>
 
-let numbers = []
-let target = 0
-let timeLeft = 60
+let numbers=[]
+let target=0
+let timeLeft=60
 let timer
 
-let finalDiff = null
-let answered = false
-let mode = "normal"
+let finalDiff=null
+let playerValue=null
+let answered=false
+let mode="normal"
 
-let score = 0
-let bestScore = 0
+let score=0
 
 
 function startNormal(){
@@ -123,19 +154,20 @@ document.getElementById("nums").textContent=numbers.join(", ")
 document.getElementById("target").textContent=target
 
 document.getElementById("answer").value=""
+document.getElementById("answer").disabled=false
 document.getElementById("result").textContent=""
 
 setupSymbols()
 setupNumbers()
 
-timeLeft = (mode==="advanced") ? 90 : 60
+timeLeft=(mode==="advanced")?90:60
 
 answered=false
 finalDiff=null
+playerValue=null
 
 document.getElementById("time").textContent=timeLeft
 document.getElementById("score").textContent=score
-document.getElementById("best").textContent=bestScore
 
 clearInterval(timer)
 
@@ -265,14 +297,15 @@ input=input.replace(/\^/g,"**")
 
 let value=eval(input)
 
+playerValue=value
+
 finalDiff=Math.abs(target-value)
 
 answered=true
 
-document.getElementById("answer").disabled=true
+clearInterval(timer)
 
-document.getElementById("result").textContent=
-"Answer submitted!"
+endGame()
 
 }catch{
 
@@ -301,16 +334,14 @@ text="🎯 PERFECT!"
 
 score=roundScore
 
-if(score>bestScore){
-bestScore=score
+text+="<br>Your answer: "+playerValue
+text+="<br>Target: "+target
+text+="<br>Difference: "+finalDiff
+text+="<br>Score: "+roundScore
+
 }
 
 document.getElementById("score").textContent=score
-document.getElementById("best").textContent=bestScore
-
-text+=" Score: "+roundScore
-
-}
 
 document.getElementById("result").innerHTML=
 text+
