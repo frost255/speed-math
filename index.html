@@ -1,7 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
+
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Speed Math Game</title>
 
 <style>
@@ -9,9 +12,16 @@
 body{
 font-family:Arial;
 text-align:center;
-margin-top:40px;
+margin:0;
+padding:20px;
 font-size:26px;
-padding:10px;
+display:flex;
+justify-content:center;
+}
+
+.container{
+max-width:600px;
+width:100%;
 }
 
 .hidden{
@@ -19,19 +29,20 @@ display:none;
 }
 
 button{
-padding:16px 24px;
+padding:18px 24px;
 margin:8px;
 font-size:26px;
 cursor:pointer;
-border-radius:10px;
+border-radius:12px;
 }
 
 input{
-padding:16px;
-width:420px;
+padding:18px;
+width:100%;
 font-size:28px;
 text-align:center;
 border-radius:10px;
+box-sizing:border-box;
 }
 
 .numbers{
@@ -53,47 +64,33 @@ top:20px;
 right:20px;
 }
 
-/* 📱 Mobile optimization */
+/* มือถือ */
 
 @media (max-width:600px){
 
-body{
-font-size:24px;
-margin-top:20px;
-}
-
-h1{
-font-size:32px;
-}
-
 button{
-width:90%;
-font-size:32px;
-padding:20px;
+font-size:34px;
+padding:24px;
 }
 
 .symbols button{
 width:28%;
-font-size:34px;
-padding:22px;
+font-size:36px;
 }
 
 .numberPad button{
 width:28%;
-font-size:36px;
-padding:24px;
+font-size:40px;
+padding:26px;
 }
 
 input{
-width:95%;
-font-size:32px;
-padding:18px;
+font-size:36px;
+padding:22px;
 }
 
-#backBtn{
-width:auto;
-font-size:24px;
-padding:10px 14px;
+.numbers{
+font-size:40px;
 }
 
 }
@@ -102,6 +99,8 @@ padding:10px 14px;
 </head>
 
 <body>
+
+<div class="container">
 
 <h1>⚡ Speed Math Game</h1>
 
@@ -146,6 +145,8 @@ Score: <span id="score">0</span>
 
 </div>
 
+</div>
+
 <script>
 
 let numbers=[]
@@ -159,7 +160,6 @@ let answered=false
 let mode="normal"
 
 let score=0
-
 
 function startNormal(){
 mode="normal"
@@ -188,7 +188,6 @@ document.getElementById("nums").textContent=numbers.join(", ")
 document.getElementById("target").textContent=target
 
 document.getElementById("answer").value=""
-document.getElementById("answer").disabled=false
 document.getElementById("result").textContent=""
 
 setupSymbols()
