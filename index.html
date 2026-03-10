@@ -5,49 +5,110 @@
 <title>Speed Math Game</title>
 
 <style>
-body { font-family: Arial; text-align: center; margin-top: 40px; font-size: 26px; }
 
-.hidden { display: none; }
-
-button {
-  padding: 14px 20px;
-  margin: 6px;
-  font-size: 24px;
-  cursor: pointer;
+body{
+font-family:Arial;
+text-align:center;
+margin-top:40px;
+font-size:26px;
+padding:10px;
 }
 
-input {
-  padding: 14px;
-  width: 420px;
-  font-size: 26px;
-  text-align: center;
+.hidden{
+display:none;
 }
 
-.numbers { font-size: 34px; margin: 25px; }
+button{
+padding:16px 24px;
+margin:8px;
+font-size:26px;
+cursor:pointer;
+border-radius:10px;
+}
 
-.symbols { margin-top: 15px; }
+input{
+padding:16px;
+width:420px;
+font-size:28px;
+text-align:center;
+border-radius:10px;
+}
 
-.numberPad { margin-top: 20px; }
+.numbers{
+font-size:36px;
+margin:25px;
+}
+
+.symbols{
+margin-top:20px;
+}
+
+.numberPad{
+margin-top:20px;
+}
 
 #backBtn{
 position:absolute;
 top:20px;
 right:20px;
+}
 
+/* 📱 Mobile optimization */
+
+@media (max-width:600px){
+
+body{
+font-size:24px;
+margin-top:20px;
+}
+
+h1{
+font-size:32px;
+}
+
+button{
+width:90%;
+font-size:32px;
+padding:20px;
+}
+
+.symbols button{
+width:28%;
+font-size:34px;
+padding:22px;
+}
+
+.numberPad button{
+width:28%;
+font-size:36px;
+padding:24px;
+}
+
+input{
+width:95%;
+font-size:32px;
+padding:18px;
+}
+
+#backBtn{
+width:auto;
+font-size:24px;
+padding:10px 14px;
+}
 
 }
+
 </style>
 </head>
-
 
 <body>
 
 <h1>⚡ Speed Math Game</h1>
 
 <div id="menu">
-  <h2>Select Mode</h2>
-  <button onclick="startNormal()">Normal Mode</button>
-  <button onclick="startAdvanced()">Advanced Mode</button>
+<h2>Select Mode</h2>
+<button onclick="startNormal()">Normal Mode</button>
+<button onclick="startAdvanced()">Advanced Mode</button>
 </div>
 
 <div id="game" class="hidden">
@@ -351,4 +412,3 @@ document.getElementById("menu").classList.remove("hidden")
 
 </body>
 </html>
-
